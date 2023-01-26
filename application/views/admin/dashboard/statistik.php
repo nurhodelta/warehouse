@@ -32,7 +32,7 @@
                             <div class="icon">
                                 <i class="fa fa-archive"></i>
                             </div>
-                            <a href="<?php echo site_url();?>website/masuk" class="small-box-footer">
+                            <a href="<?php echo site_url();?>website/incoming" class="small-box-footer">
                             View Incoming Goods
                                 <i class="fa fa-arrow-circle-right"></i>
                             </a>
@@ -49,7 +49,7 @@
                             <div class="icon">
                                 <i class="fa fa-archive"></i>
                             </div>
-                            <a href="<?php echo site_url();?>website/keluar" class="small-box-footer">
+                            <a href="<?php echo site_url();?>website/outgoing" class="small-box-footer">
                             View Outgoing Goods
                                 <i class="fa fa-arrow-circle-right"></i>
                             </a>
