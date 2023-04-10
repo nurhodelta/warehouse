@@ -63,3 +63,6 @@ $route['weboste/adjustment-report'] = 'website/adjustment_report';
 $route['website/adjustment-report-pdf'] = 'website/adjustment_report_pdf';
 
 $route['user/edit-password'] = 'user/edit_password';
+
+$route['website/incoming-forecast'] = 'website/incoming_forecast';
+$route['website/outgoing-forecast'] = 'website/outgoing_forecast';

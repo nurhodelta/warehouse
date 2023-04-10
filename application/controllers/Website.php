@@ -993,8 +993,8 @@ if ($barang->stock <= $limitstock->stock) {
 		}
 	}
 
-  //CKEDITOR
-  private function ckeditor($text) {
+	//CKEDITOR
+	private function ckeditor($text) {
 		return '
 		<script type="text/javascript" src="'.base_url().'editor/ckeditor.js"></script>
 		<script type="text/javascript">
@@ -1012,7 +1012,203 @@ if ($barang->stock <= $limitstock->stock) {
 			height					  : 400	
 		}
 		);
-	</script>';
+		</script>';
+	}
+
+	public function incoming_forecast() {
+		if ($this->session->userdata('logged_in') == TRUE){
+			$where_admin['admin_user'] 	= $this->session->userdata('admin_user');
+			$data['admin'] 				= $this->ADM->get_admin('',$where_admin);
+			$data['web']					= $this->ADM->identitaswebsite();
+			@date_default_timezone_set('Asia/Jakarta');
+			$data['dashboard_info']		= FALSE;
+			$data['breadcrumb']			= 'Incoming Goods Forecast';
+			$data['content'] 			= 'admin/content/website/incoming_forecast';
+			$data['menu_terpilih']		= '1';
+			$data['submenu_terpilih']	= '13';
+			$data['action']				= (empty($filter1))?'view':$filter1;
+			$data['validate']			= array('id_barang'=>'Item name'
+											);
+			if ($data['action'] == 'view'){
+				$data['berdasarkan']		= array('id_barang'=>'ITEM NAME');
+				$data['cari']				= ($this->input->post('cari'))?$this->input->post('cari'):'id_barang';
+				$data['q']					= ($this->input->post('q'))?$this->input->post('q'):'';
+				$data['halaman']			= (empty($filter2))?1:$filter2;
+				$data['batas']				= 10;
+				$data['page']				= ($data['halaman']-1) * $data['batas'];
+				$like_transaksi[$data['cari']]	= $data['q'];
+				$where_transaksi['status_pergerakan'] 	= 2;
+				$data['jml_data']			= $this->ADM->count_all_transaksi($where_transaksi, $like_transaksi);
+				$data['jml_halaman'] 		= ceil($data['jml_data']/$data['batas']);
+			}
+			
+			$year = date('Y');
+			$forecast_array = [];
+			for ($n = 1; $n <= 12; $n++) {
+				$forecast_data = $this->ADM->getForecastData(1, $n, $year);
+				foreach ($forecast_data as $fdata) {
+					$forecast_array[] = $fdata->total ?? 0;
+				}
+			}
+		
+			$last_zero_count = $this->getZeroCount($forecast_array);
+
+			// 3ma if 3 or more
+			if ($last_zero_count !== 0 && $last_zero_count < 10) {
+				$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
+			} elseif ($last_zero_count == 10) {
+				$data['forecast'] = $this->useEs($forecast_array);
+			} else {
+				// look for data from nov and dec last year
+				$nfarray = [];
+				$nf_data11 = $this->ADM->getForecastData(1, 11, $year-1);
+				foreach ($nf_data11 as $nfdata11) {
+					$nfarray[] = $nfdata11->total ?? 0;
+				}
+				$nf_data12 = $this->ADM->getForecastData(1, 12, $year-1);
+				foreach ($nf_data12 as $nfdata12) {
+					$nfarray[] = $nfdata12->total ?? 0;
+				}
+	
+				if (count($nfarray) < 2) {
+					$data['forecast'] = [];
+				} else {
+					$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+				}
+			}
+			
+			$this->load->vars($data);
+			$this->load->view('admin/home');
+		} else {
+			redirect("wp_login");
+		}
+	}
+
+	public function outgoing_forecast() {
+		if ($this->session->userdata('logged_in') == TRUE){
+			$where_admin['admin_user'] 	= $this->session->userdata('admin_user');
+			$data['admin'] 				= $this->ADM->get_admin('',$where_admin);
+			$data['web']					= $this->ADM->identitaswebsite();
+			@date_default_timezone_set('Asia/Jakarta');
+			$data['dashboard_info']		= FALSE;
+			$data['breadcrumb']			= 'Outgoing Goods Forecast';
+			$data['content'] 			= 'admin/content/website/outgoing_forecast';
+			$data['menu_terpilih']		= '1';
+			$data['submenu_terpilih']	= '13';
+			$data['action']				= (empty($filter1))?'view':$filter1;
+			$data['validate']			= array('id_barang'=>'Item name'
+											);
+			if ($data['action'] == 'view'){
+				$data['berdasarkan']		= array('id_barang'=>'ITEM NAME');
+				$data['cari']				= ($this->input->post('cari'))?$this->input->post('cari'):'id_barang';
+				$data['q']					= ($this->input->post('q'))?$this->input->post('q'):'';
+				$data['halaman']			= (empty($filter2))?1:$filter2;
+				$data['batas']				= 10;
+				$data['page']				= ($data['halaman']-1) * $data['batas'];
+				$like_transaksi[$data['cari']]	= $data['q'];
+				$where_transaksi['status_pergerakan'] 	= 2;
+				$data['jml_data']			= $this->ADM->count_all_transaksi($where_transaksi, $like_transaksi);
+				$data['jml_halaman'] 		= ceil($data['jml_data']/$data['batas']);
+			}
+			
+			$year = date('Y');
+			$forecast_array = [];
+			for ($n = 1; $n <= 12; $n++) {
+				$forecast_data = $this->ADM->getForecastData(2, $n, $year);
+				foreach ($forecast_data as $fdata) {
+					$forecast_array[] = $fdata->total ?? 0;
+				}
+			}
+		
+			$last_zero_count = $this->getZeroCount($forecast_array);
+
+			// 3ma if 3 or more
+			if ($last_zero_count !== 0 && $last_zero_count < 10) {
+				$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
+			} elseif ($last_zero_count == 10) {
+				$data['forecast'] = $this->useEs($forecast_array);
+			} else {
+				// look for data from nov and dec last year
+				$nfarray = [];
+				$nf_data11 = $this->ADM->getForecastData(2, 11, $year-1);
+				foreach ($nf_data11 as $nfdata11) {
+					$nfarray[] = $nfdata11->total ?? 0;
+				}
+				$nf_data12 = $this->ADM->getForecastData(2, 12, $year-1);
+				foreach ($nf_data12 as $nfdata12) {
+					$nfarray[] = $nfdata12->total ?? 0;
+				}
+	
+				if (count($nfarray) < 2) {
+					$data['forecast'] = [];
+				} else {
+					$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+				}
+			}
+			
+			$this->load->vars($data);
+			$this->load->view('admin/home');
+		} else {
+			redirect("wp_login");
+		}
+	}
+
+	private function getZeroCount($array) {
+		$last_zero_count = 0; 
+
+		for ($x = 11; $x > 0; $x--) {
+			if ($array[$x] == 0) {
+				$last_zero_count++;
+			} else {
+				break;
+			}
+			
+		}
+		return $last_zero_count;
+	}
+
+	private function useEs($array) {
+		$a = 0.2;
+		$b = 0.8;
+		for ($n = 2; $n <=11; $n++) {
+			$es = ($a*$array[$n-1])+($b*$array[$n-2]);
+			$array[$n] = round($es);
+		}
+		return $array;
+	}
+
+	private function useMa($array, $last_zero_count) {
+		for ($n = 12-$last_zero_count; $n <= 11; $n++) {
+			$avg = ($array[$n-1] + $array[$n-2] + $array[$n-3])/3;
+			$array[$n] = round($avg);
+		}
+		return $array;
+	}
+
+	private function useEs2($array, $lastyear) {
+		$a = 0.2;
+		$b = 0.8;
+		if ($array[0] !== 0) {
+			$ret_array = [$array[0], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			// get second
+			$sec = ($a*$array[0])+($b*$lastyear[1]);
+			$ret_array[1] = round($sec);
+		} else {
+			$ret_array = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			// get first
+			$first = ($a*$lastyear[1])+($b*$lastyear[0]);
+			$ret_array[0] = round($first);
+			// get second
+			$sec = ($a*$ret_array[0])+($b*$lastyear[1]);
+			$ret_array[1] = round($sec);
+		}
+		
+		for ($n = 2; $n <=11; $n++) {
+			$es = ($a*$ret_array[$n-1])+($b*$ret_array[$n-2]);
+			$ret_array[$n] = round($es);
+		}
+
+		return $ret_array;
 	}
 	 
 }

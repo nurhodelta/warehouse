@@ -232,6 +232,34 @@
 							</ul>
 						</li>
 						<?php endif; ?>
+
+						<?php if($admin->admin_level_kode === '1' || $admin->admin_level_kode === '3'):?>
+						<li class='site-menu-item has-sub'>
+							<a href='javascript:void(0)' class='animsition-link'>
+								<span class='site-menu-arrow'></span>
+								<i class='site-menu-icon fa fa fa-line-chart'></i>
+								<span class='site-menu-title'>Forecast</span>
+							</a>
+							<ul class='site-menu-sub'>
+								<li class='site-menu-item'>
+									<a href='<?php echo base_url();?>website/incoming-forecast' class='animsition-link'>
+										<i class='site-menu-icon fa fa-angle-right'></i>
+										<span class='site-menu-title'>
+										Incoming Goods
+										</span>
+									</a>
+								</li>
+								<li class='site-menu-item'>
+									<a href='<?php echo base_url();?>website/outgoing-forecast' class='animsition-link'>
+										<i class='site-menu-icon fa fa-angle-right'></i>
+										<span class='site-menu-title'>
+										Outgoing Goods
+										</span>
+									</a>
+								</li>
+							</ul>
+						</li>
+						<?php endif; ?>
 						
 						<li class='site-menu-item has-sub'>
 							<a href='javascript:void(0)' class='animsition-link'>
