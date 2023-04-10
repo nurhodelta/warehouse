@@ -1053,27 +1053,30 @@ if ($barang->stock <= $limitstock->stock) {
 		
 			$last_zero_count = $this->getZeroCount($forecast_array);
 
-			// 3ma if 3 or more
-			if ($last_zero_count !== 0 && $last_zero_count < 10) {
-				$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
-			} elseif ($last_zero_count == 10) {
-				$data['forecast'] = $this->useEs($forecast_array);
+			if ($last_zero_count == 0) {
+				$data['forecast'] = $forecast_array;
 			} else {
-				// look for data from nov and dec last year
-				$nfarray = [];
-				$nf_data11 = $this->ADM->getForecastData(1, 11, $year-1);
-				foreach ($nf_data11 as $nfdata11) {
-					$nfarray[] = $nfdata11->total ?? 0;
-				}
-				$nf_data12 = $this->ADM->getForecastData(1, 12, $year-1);
-				foreach ($nf_data12 as $nfdata12) {
-					$nfarray[] = $nfdata12->total ?? 0;
-				}
-	
-				if (count($nfarray) < 2) {
-					$data['forecast'] = [];
+				if ($last_zero_count < 10) {
+					$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
+				} elseif ($last_zero_count == 10) {
+					$data['forecast'] = $this->useEs($forecast_array);
 				} else {
-					$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+					// look for data from nov and dec last year
+					$nfarray = [];
+					$nf_data11 = $this->ADM->getForecastData(1, 11, $year-1);
+					foreach ($nf_data11 as $nfdata11) {
+						$nfarray[] = $nfdata11->total ?? 0;
+					}
+					$nf_data12 = $this->ADM->getForecastData(1, 12, $year-1);
+					foreach ($nf_data12 as $nfdata12) {
+						$nfarray[] = $nfdata12->total ?? 0;
+					}
+		
+					if (count($nfarray) < 2) {
+						$data['forecast'] = [];
+					} else {
+						$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+					}
 				}
 			}
 			
@@ -1122,27 +1125,30 @@ if ($barang->stock <= $limitstock->stock) {
 		
 			$last_zero_count = $this->getZeroCount($forecast_array);
 
-			// 3ma if 3 or more
-			if ($last_zero_count !== 0 && $last_zero_count < 10) {
-				$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
-			} elseif ($last_zero_count == 10) {
-				$data['forecast'] = $this->useEs($forecast_array);
+			if ($last_zero_count == 0) {
+				$data['forecast'] = $forecast_array;
 			} else {
-				// look for data from nov and dec last year
-				$nfarray = [];
-				$nf_data11 = $this->ADM->getForecastData(2, 11, $year-1);
-				foreach ($nf_data11 as $nfdata11) {
-					$nfarray[] = $nfdata11->total ?? 0;
-				}
-				$nf_data12 = $this->ADM->getForecastData(2, 12, $year-1);
-				foreach ($nf_data12 as $nfdata12) {
-					$nfarray[] = $nfdata12->total ?? 0;
-				}
-	
-				if (count($nfarray) < 2) {
-					$data['forecast'] = [];
+				if ($last_zero_count < 10) {
+					$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
+				} elseif ($last_zero_count == 10) {
+					$data['forecast'] = $this->useEs($forecast_array);
 				} else {
-					$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+					// look for data from nov and dec last year
+					$nfarray = [];
+					$nf_data11 = $this->ADM->getForecastData(1, 11, $year-1);
+					foreach ($nf_data11 as $nfdata11) {
+						$nfarray[] = $nfdata11->total ?? 0;
+					}
+					$nf_data12 = $this->ADM->getForecastData(1, 12, $year-1);
+					foreach ($nf_data12 as $nfdata12) {
+						$nfarray[] = $nfdata12->total ?? 0;
+					}
+		
+					if (count($nfarray) < 2) {
+						$data['forecast'] = [];
+					} else {
+						$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+					}
 				}
 			}
 			
