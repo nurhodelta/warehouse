@@ -171,7 +171,7 @@
 										<div id='pagination'>
 											<div class='pagination-right'>
 												<ul class="pagination">
-													<?php if ($jml_halaman > 1) { echo pages($halaman, $jml_halaman, 'website/penyesuaian/view', $id=""); }?>
+													<?php if ($jml_halaman > 1) { echo pages($halaman, $jml_halaman, 'website/adjustment/view', $id=""); }?>
 												</ul>
 											</div>
 										</div>

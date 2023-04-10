@@ -149,7 +149,7 @@
 										<div id='pagination'>
 											<div class='pagination-right'>
 												<ul class="pagination">
-													<?php if ($jml_halaman > 1) { echo pages($halaman, $jml_halaman, 'website/keluar/view', $id=""); }?>
+													<?php if ($jml_halaman > 1) { echo pages($halaman, $jml_halaman, 'website/outgoing/view', $id=""); }?>
 												</ul>
 											</div>
 										</div>
