@@ -61,7 +61,7 @@
 
     $('#good_select').change(function(){
         var sel_good = $(this).val();
-        location.href = '<?php echo base_url(); ?>website/incoming-forecast?sel_good='+sel_good;
+        location.href = '<?php echo base_url(); ?>website/outgoing-forecast?sel_good='+sel_good;
     });
 
 	Highcharts.chart('container', {
