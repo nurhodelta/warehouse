@@ -16,6 +16,17 @@
                     <div class="panel-heading">
                         <h5 class="panel-title">View Data
                             <?php echo $breadcrumb; ?>
+
+                            <select style="float:right" id="good_select">
+                                <option value="" <?php if ($sel_good == null) { echo 'selected'; } ?>>All</option>
+                                <?php
+                                    foreach($goods as $good) {
+                                        ?>
+                                         <option value="<?php echo $good->id_barang ?>" <?php if ($sel_good == $good->id_barang) { echo 'selected'; } ?>><?php echo $good->nama_barang ?></option>
+                                        <?php
+                                    }
+                                ?>
+                            </select>
                         </h5>
                     </div>
                     <!-- ========== Flashdata ========== -->
@@ -47,6 +58,12 @@
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 <script>
+
+    $('#good_select').change(function(){
+        var sel_good = $(this).val();
+        location.href = '<?php echo base_url(); ?>website/incoming-forecast?sel_good='+sel_good;
+    });
+
 	Highcharts.chart('container', {
     chart: {
         type: 'line'
@@ -83,16 +100,27 @@
             borderWidth: 0
         }
     },
-    series: [{
-        name: 'Months of <?= date('Y') ?>',
-        data: [
-			<?php 
-			foreach ($forecast as $data){ ?>
-				<?php echo $data;?>,
-			<?php } ?>
-		]
+    series: [
+        {
+            name: 'Forecast Data',
+            data: [
+                <?php 
+                foreach ($forecast as $data){ ?>
+                    <?php echo $data;?>,
+                <?php } ?>
+            ]
 
-    }]
+        },
+        {
+            name: 'Goods Data',
+            data: [
+                <?php 
+                foreach ($good_data as $gdata){ ?>
+                    <?php echo $gdata;?>,
+                <?php } ?>
+            ]
+        },
+]
 });
 </script>
 

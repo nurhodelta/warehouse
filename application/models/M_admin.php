@@ -601,15 +601,26 @@ class M_admin extends CI_Model  {
 		return $data;
 	}
 
-	public function getForecastData($status, $month, $year) {
+	public function getForecastData($status, $month, $year, $sel_good=null) {
         $this->db->select('SUM(jumlah) AS total');
         $this->db->from("transaksi_barang");
 		$this->db->where('status_pergerakan', $status);
 		$this->db->where('MONTH(transaksi_updated)', $month);
 		$this->db->where('YEAR(transaksi_updated)', $year);
+		if ($sel_good) {
+			$this->db->where('id_barang', $sel_good);
+		}
         $result = $this->db->get();
         
        	return $result->result();
        
+	}
+
+	public function getGoods() {
+		$this->db->select('*');
+        $this->db->from("master_barang");
+        $result = $this->db->get();
+        
+       	return $result->result();
 	}
 }

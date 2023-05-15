@@ -288,7 +288,7 @@ class Website extends CI_Controller {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -371,7 +371,7 @@ class Website extends CI_Controller {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -454,7 +454,7 @@ class Website extends CI_Controller {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -493,21 +493,23 @@ class Website extends CI_Controller {
 				$data['jumlah']	= ($this->input->post('jumlah'))?$this->input->post('jumlah'):'';
 				$simpan						= $this->input->post('simpan');
 				if ($simpan){
-					$insert['id_barang']			= validasi_sql($data['id_barang']);
-					$insert['id_supplier']			= validasi_sql($data['id_supplier']);
-					$insert['jumlah']				= validasi_sql($data['jumlah']);
-					$insert['admin_user']			= $this->session->userdata('admin_user');
-					$insert['status_pergerakan']	= 1;
-					$this->ADM->insert_transaksi($insert);
+					foreach($data['id_barang'] as $index => $id_barang){
+						$insert['id_barang']			= validasi_sql($id_barang);
+						$insert['id_supplier']			= validasi_sql($data['id_supplier']);
+						$insert['jumlah']				= validasi_sql($data['jumlah'][$index]);
+						$insert['admin_user']			= $this->session->userdata('admin_user');
+						$insert['status_pergerakan']	= 1;
+						$this->ADM->insert_transaksi($insert);
 
-					$where_barang['id_barang']	= $data['id_barang']; 
-					$barang	= $this->ADM->get_barang('*', $where_barang);
+						$where_barang['id_barang']	= $id_barang; 
+						$barang	= $this->ADM->get_barang('*', $where_barang);
 
-					$where_edit['id_barang']	= $data['id_barang'];
-					$edit['stock']	= $barang->stock +$data['jumlah'] ;
-					$this->ADM->update_barang($where_edit, $edit);
+						$where_edit['id_barang']	= $id_barang;
+						$edit['stock']	= $barang->stock +$data['jumlah'][$index];
+						$this->ADM->update_barang($where_edit, $edit);
+					}
 
-					$this->session->set_flashdata('success','New Incoming Item has been added successfully!,');
+					$this->session->set_flashdata('success','New Incomings Item has been added successfully!,');
 					redirect("website/incoming");	
 			}
 			} else {
@@ -523,7 +525,7 @@ class Website extends CI_Controller {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -562,69 +564,70 @@ class Website extends CI_Controller {
 				$data['jumlah']	= ($this->input->post('jumlah'))?$this->input->post('jumlah'):'';
 				$simpan						= $this->input->post('simpan');
 				if ($simpan){
-					$where_barang['id_barang']	= $data['id_barang']; 
-					$barang	= $this->ADM->get_barang('*', $where_barang);
+					foreach ($data['id_barang'] as $index => $id_barang) {
+						$where_barang['id_barang']	= $id_barang; 
+						$barang	= $this->ADM->get_barang('*', $where_barang);
 
-					$where_limitstock['limitstock_id']	= 1; 
-					$limitstock	= $this->ADM->get_limitstock('*', $where_limitstock);
-					
-					if ($barang->stock >= $data['jumlah']) {
-					$insert['id_barang']			= validasi_sql($data['id_barang']);
-					$insert['id_customer']			= validasi_sql($data['id_customer']);
-					$insert['jumlah']				= validasi_sql($data['jumlah']);
-					$insert['admin_user']			= $this->session->userdata('admin_user');
-					$insert['status_pergerakan']	= 2;
-					$this->ADM->insert_transaksi($insert);
+						$where_limitstock['limitstock_id']	= 1; 
+						$limitstock	= $this->ADM->get_limitstock('*', $where_limitstock);
+						
+						if ($barang->stock >= $data['jumlah'][$index]) {
+							$insert['id_barang']			= validasi_sql($id_barang);
+							$insert['id_customer']			= validasi_sql($data['id_customer']);
+							$insert['jumlah']				= validasi_sql($data['jumlah'][$index]);
+							$insert['admin_user']			= $this->session->userdata('admin_user');
+							$insert['status_pergerakan']	= 2;
+							$this->ADM->insert_transaksi($insert);
 
+							$where_edit['id_barang']	= $id_barang;
+							$edit['stock']	= $barang->stock - $data['jumlah'][$index];
+							$this->ADM->update_barang($where_edit, $edit);
 
-					$where_edit['id_barang']	= $data['id_barang'];
-					$edit['stock']	= $barang->stock - $data['jumlah'] ;
-					$this->ADM->update_barang($where_edit, $edit);
-
-if ($barang->stock <= $limitstock->stock) {
-					$message = "Stock with products ".$barang->nama_barang." less than the minimum stock limit";
-					$user_id = 4444;
-					$url = "https://www.wms.ngodings.com";
-					$headings = "WMS - Stock Warning";
-					$img = "https://www.wms.ngodings.com/assets/3691adaa4a69024b73dc5c1ddb3c43ea.png";
-					
-					
-					$content = array(
-						"en" => "$message"
-					);
-					$headings = array(
-						"en" => "$headings"
-					);
-					$fields = array(
-						'app_id' => "13219ce1-3c03-40bb-9043-13325e84a94c",
-						'filters' => array(array("field" => "tag", "key" => "user_id", "relation" => "=", "value" => "$user_id")),
-						'url' => $url,
-						'contents' => $content,
-						'chrome_web_icon' => $img,
-						'headings' => $headings
-					);
-					$fields = json_encode($fields);
-					print("\nJSON sent:\n");
-					print($fields);
-					$ch = curl_init();
-					curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-					curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
-						'Authorization: Basic ZTE1NzBjY2MtMTE1YS00NjA0LTllNzctNTJjNTZmZGU0YmFm'));
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-					curl_setopt($ch, CURLOPT_HEADER, FALSE);
-					curl_setopt($ch, CURLOPT_POST, TRUE);
-					curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-					$response = curl_exec($ch);
-					curl_close($ch);
-}
-
-					$this->session->set_flashdata('success','New Exit Item has been successfully added!');
-					redirect("website/outgoing");	
-					} else {
-						$this->session->set_flashdata('error','Insufficient stock of goods!');
-						redirect("website/outgoing");	
+							if ($barang->stock <= $limitstock->stock) {
+								$message = "Stock with products ".$barang->nama_barang." less than the minimum stock limit";
+								$user_id = 4444;
+								$url = "https://www.wms.ngodings.com";
+								$headings = "WMS - Stock Warning";
+								$img = "https://www.wms.ngodings.com/assets/3691adaa4a69024b73dc5c1ddb3c43ea.png";
+								
+								
+								$content = array(
+									"en" => "$message"
+								);
+								$headings = array(
+									"en" => "$headings"
+								);
+								$fields = array(
+									'app_id' => "13219ce1-3c03-40bb-9043-13325e84a94c",
+									'filters' => array(array("field" => "tag", "key" => "user_id", "relation" => "=", "value" => "$user_id")),
+									'url' => $url,
+									'contents' => $content,
+									'chrome_web_icon' => $img,
+									'headings' => $headings
+								);
+								$fields = json_encode($fields);
+								print("\nJSON sent:\n");
+								print($fields);
+								$ch = curl_init();
+								curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+								curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
+									'Authorization: Basic ZTE1NzBjY2MtMTE1YS00NjA0LTllNzctNTJjNTZmZGU0YmFm'));
+								curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+								curl_setopt($ch, CURLOPT_HEADER, FALSE);
+								curl_setopt($ch, CURLOPT_POST, TRUE);
+								curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+								curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+								$response = curl_exec($ch);
+								curl_close($ch);
+							}
+	
+						} else {
+							$this->session->set_flashdata('error','Insufficient stock of goods!');
+							redirect("website/outgoing");	
+						}
 					}
+					$this->session->set_flashdata('success','New Exit Items has been successfully added!');
+					redirect("website/outgoing");
 				}
 			} else {
 				redirect("website/outgoing");	
@@ -640,7 +643,7 @@ if ($barang->stock <= $limitstock->stock) {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -681,7 +684,7 @@ if ($barang->stock <= $limitstock->stock) {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -716,7 +719,7 @@ if ($barang->stock <= $limitstock->stock) {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -776,7 +779,7 @@ if ($barang->stock <= $limitstock->stock) {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -837,7 +840,7 @@ if ($barang->stock <= $limitstock->stock) {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -989,7 +992,7 @@ if ($barang->stock <= $limitstock->stock) {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -1041,11 +1044,16 @@ if ($barang->stock <= $limitstock->stock) {
 				$data['jml_data']			= $this->ADM->count_all_transaksi($where_transaksi, $like_transaksi);
 				$data['jml_halaman'] 		= ceil($data['jml_data']/$data['batas']);
 			}
+
+			$sel_good = null;
+			if (isset($_GET['sel_good']) && !empty($_GET['sel_good'])) {
+				$sel_good = $_GET['sel_good'];
+			}
 			
 			$year = date('Y');
 			$forecast_array = [];
 			for ($n = 1; $n <= 12; $n++) {
-				$forecast_data = $this->ADM->getForecastData(1, $n, $year);
+				$forecast_data = $this->ADM->getForecastData(1, $n, $year, $sel_good);
 				foreach ($forecast_data as $fdata) {
 					$forecast_array[] = $fdata->total ?? 0;
 				}
@@ -1079,11 +1087,21 @@ if ($barang->stock <= $limitstock->stock) {
 					}
 				}
 			}
+
+			foreach($forecast_array as $key => $good_data) {
+				if ($key < (12 - $last_zero_count)) {
+					$data['good_data'][] = $good_data;
+				}
+				
+			}
+
+			$data['sel_good'] = $sel_good;
+			$data['goods'] = $this->ADM->getGoods();
 			
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -1113,11 +1131,16 @@ if ($barang->stock <= $limitstock->stock) {
 				$data['jml_data']			= $this->ADM->count_all_transaksi($where_transaksi, $like_transaksi);
 				$data['jml_halaman'] 		= ceil($data['jml_data']/$data['batas']);
 			}
+
+			$sel_good = null;
+			if (isset($_GET['sel_good']) && !empty($_GET['sel_good'])) {
+				$sel_good = $_GET['sel_good'];
+			}
 			
 			$year = date('Y');
 			$forecast_array = [];
 			for ($n = 1; $n <= 12; $n++) {
-				$forecast_data = $this->ADM->getForecastData(2, $n, $year);
+				$forecast_data = $this->ADM->getForecastData(2, $n, $year, $sel_good);
 				foreach ($forecast_data as $fdata) {
 					$forecast_array[] = $fdata->total ?? 0;
 				}
@@ -1151,11 +1174,21 @@ if ($barang->stock <= $limitstock->stock) {
 					}
 				}
 			}
+
+			foreach($forecast_array as $key => $good_data) {
+				if ($key < (12 - $last_zero_count)) {
+					$data['good_data'][] = $good_data;
+				}
+				
+			}
+
+			$data['sel_good'] = $sel_good;
+			$data['goods'] = $this->ADM->getGoods();
 			
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 

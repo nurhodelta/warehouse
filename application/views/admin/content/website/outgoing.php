@@ -215,25 +215,44 @@
 						<div class="panel-body container-fluid">
 							<form action="<?php echo site_url();?>website/outgoing/add" method="post" id="exampleStandardForm" autocomplete="off">
 								<div class="form-group form-material">
-								<div class="form-group form-material">
-									<label class="control-label" for="inputText">Customer</label>
-									<select name="id_customer" class="form-control input-sm">
-									<?php foreach ($this->ADM->grid_all_customer('', 'id_customer', 'DESC', 100, '', '' , '') as $customer){ ?>
-										<option value="<?php echo $customer->id_customer ?>"><?php echo $customer->nama_customer ?></option>
-									<?php } ?>
-									</select>
+									<div class="form-group form-material">
+										<label class="control-label" for="inputText">Customer</label>
+										<select name="id_customer" class="form-control input-sm">
+										<?php foreach ($this->ADM->grid_all_customer('', 'id_customer', 'DESC', 100, '', '' , '') as $customer){ ?>
+											<option value="<?php echo $customer->id_customer ?>"><?php echo $customer->nama_customer ?></option>
+										<?php } ?>
+										</select>
+									</div>
+										<!-- <label class="control-label" for="inputText">Goods</label>
+										<select name="id_barang" class="form-control input-sm">
+													<?php foreach ($this->ADM->grid_all_barang('', 'id_barang', 'DESC', 100, '', '' , '') as $barang){ ?>
+														<option value="<?php echo $barang->id_barang ?>"><?php echo $barang->nama_barang ?></option>
+													<?php } ?>
+													</select> -->
 								</div>
-									<label class="control-label" for="inputText">Goods</label>
-									<select name="id_barang" class="form-control input-sm">
+								<table class="table" id="goods-table">
+									<tr>
+										<td>
+											<label class="control-label" for="inputText">Goods</label>
+											<select name="id_barang[]" class="form-control input-sm">
 												<?php foreach ($this->ADM->grid_all_barang('', 'id_barang', 'DESC', 100, '', '' , '') as $barang){ ?>
 													<option value="<?php echo $barang->id_barang ?>"><?php echo $barang->nama_barang ?></option>
 												<?php } ?>
-												</select>
-								</div>
-								<div class="form-group form-material">
+											</select>
+										</td>
+										<td>
+											<label class="control-label" for="inputText">Total</label>
+											<input type="number" class="form-control input-sm" id="" name="jumlah[]" placeholder="Total" min="1" value="1" required/>
+										</td>
+										<td>
+											<button type="button" class="btn btn-sm btn-success" style="margin-top: 26px;" id="add-row-btn"><i class="fa fa-plus"></i></button>
+										</td>
+									</tr>
+								</table>
+								<!-- <div class="form-group form-material">
 									<label class="control-label" for="inputText">Total</label>
 									<input type="number" class="form-control input-sm" id="jumlah" name="jumlah" placeholder="Total" required/>
-								</div>
+								</div> -->
 								<div class='button center'>
 									<input class="btn btn-success btn-sm" type="submit" name="simpan" value="Add Data" id="validateButton2">
 									<input class="btn btn-danger btn-sm" type="reset" name="batal" value="Cancel" onclick="location.href='<?php echo site_url(); ?>website/outgoing'"
@@ -253,3 +272,24 @@
 	</div>
 	<!-- ================================================== END TAMBAH ================================================== -->
 	<?php } ?>
+
+	<script type="text/javascript">
+		$('#add-row-btn').click(function(){
+			var html = '<tr>';
+			html += '<td><label class="control-label" for="inputText">Goods</label>';
+			html += '<select name="id_barang[]" class="form-control input-sm">';
+			html += '<?php foreach ($this->ADM->grid_all_barang('', 'id_barang', 'DESC', 100, '', '' , '') as $barang){ 
+						echo '<option value="'.$barang->id_barang.'">'.$barang->nama_barang.'</option>';
+					}?>';
+			html +='</select></td>';
+			html += '<td><label class="control-label" for="inputText">Total</label>';
+			html += '<input type="number" class="form-control input-sm" id="" name="jumlah[]" placeholder="Total" min="1" value="1" required/></td>';
+			html += '<td><button type="button" class="btn btn-sm btn-danger minus-btn" style="margin-top: 26px;"><i class="fa fa-minus"></i></button></td>';
+			html += '</tr>';
+			$('#goods-table').append(html);
+		})
+
+		$(document).on('click', '.minus-btn', function(){
+			$(this).closest('tr').remove();
+		});
+	</script>

@@ -24,7 +24,7 @@ class User extends CI_Controller {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -153,7 +153,7 @@ class User extends CI_Controller {
 			$this->load->vars($data);
 			$this->load->view('admin/home');
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 	
@@ -225,7 +225,7 @@ class User extends CI_Controller {
 				redirect("admin");	
 			}
 		} else {
-			redirect("wp_login");
+			redirect("login");
 		}
 	}
 
@@ -270,7 +270,7 @@ class User extends CI_Controller {
 				 $this->load->vars($data);
 				 $this->load->view('admin/home');
 			 } else {
-				 redirect("wp_login");
+				 redirect("login");
 			 }
 		 }
 }
