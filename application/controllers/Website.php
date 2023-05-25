@@ -238,6 +238,7 @@ class Website extends CI_Controller {
 				$like_barang[$data['cari']]	= $data['q'];
 				$data['jml_data']			= $this->ADM->count_all_barang('', $like_barang);
 				$data['jml_halaman'] 		= ceil($data['jml_data']/$data['batas']);
+				$data['results'] = $this->ADM->grid_all_barang('*, (COALESCE((SELECT SUM(jumlah) FROM transaksi_barang where id_barang = master_barang.id_barang and status_pergerakan = 1),0) - COALESCE((SELECT SUM(jumlah) FROM transaksi_barang where id_barang = master_barang.id_barang and status_pergerakan = 2),0)) as qty', 'nama_barang', 'ASC', $data['batas'], $data['page'], '', $like_barang);
 			} elseif ($data['action'] == 'add'){
 			if ($data['admin']->admin_level_kode == 1 || $data['admin']->admin_level_kode == 2) {
 				$data['onload']				= 'barang';

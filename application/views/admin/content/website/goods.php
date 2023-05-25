@@ -86,8 +86,8 @@
                                         <?php 
 	                            $i	= $page+1;
                                 $like_barang[$cari]			= $q;
-	                        if ($jml_data > 0){
-                                foreach ($this->ADM->grid_all_barang('*, (COALESCE((SELECT SUM(jumlah) FROM transaksi_barang where id_barang = master_barang.id_barang and status_pergerakan = 1),0) - COALESCE((SELECT SUM(jumlah) FROM transaksi_barang where id_barang = master_barang.id_barang and status_pergerakan = 2),0)) as qty', 'nama_barang', 'ASC', $batas, $page, '', $like_barang) as $row){
+	                        if ($results > 0){
+                                foreach ($results as $row){
 	                            ?>
                                         <tr>
                                             <td>
