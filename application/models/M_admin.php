@@ -616,6 +616,22 @@ class M_admin extends CI_Model  {
        
 	}
 
+	public function getForecastDataYear($year, $status, $item_id=null) {
+        $this->db->select('forecast_data');
+        $this->db->from("forecast");
+		$this->db->where('year', $year);
+		$this->db->where('status', $status);
+		$this->db->where('item_id', $item_id);
+        $result = $this->db->get();
+        
+       	return $result->row();
+       
+	}
+
+	public function saveForecastDataYear($data) {
+		$this->db->insert("forecast", $data);
+	}
+
 	public function getGoods() {
 		$this->db->select('*');
         $this->db->from("master_barang");

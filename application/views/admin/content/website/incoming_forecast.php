@@ -101,22 +101,29 @@
         }
     },
     series: [
-        {
-            name: 'Forecast Data',
-            data: [
-                <?php 
-                foreach ($forecast as $data){ ?>
-                    <?php echo $data;?>,
-                <?php } ?>
-            ]
-        },
+        <?php
+            if (isset($forecast)) {
+                ?>
+                {
+                    name: 'Forecast Data',
+                    data: [
+                        <?php 
+                            foreach ($forecast as $data){ 
+                                echo $data . ','; 
+                            }
+                        ?>
+                    ]
+                },
+                <?php
+            }
+        ?>
         {
             name: 'Goods Data',
             data: [
                 <?php 
-                foreach ($good_data as $gdata){ ?>
-                    <?php echo $gdata;?>,
-                <?php } ?>
+                foreach ($good_data as $gdata){
+                    echo $gdata . ',';
+                } ?>
             ]
         },
     ]

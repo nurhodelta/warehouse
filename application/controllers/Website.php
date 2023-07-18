@@ -1059,42 +1059,39 @@ class Website extends CI_Controller {
 					$forecast_array[] = $fdata->total ?? 0;
 				}
 			}
-		
-			$last_zero_count = $this->getZeroCount($forecast_array);
 
-			if ($last_zero_count == 0) {
-				$data['forecast'] = $forecast_array;
+			// check if forecast data for the year exist
+			$forecast_exist =  $this->ADM->getForecastDataYear($year, 1, $sel_good);
+
+			if ($forecast_exist) {
+				$data['forecast'] = json_decode($forecast_exist->forecast_data);
 			} else {
-				if ($last_zero_count < 10) {
-					$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
-				} elseif ($last_zero_count == 10) {
-					$data['forecast'] = $this->useEs($forecast_array);
-				} else {
-					// look for data from nov and dec last year
-					$nfarray = [];
-					$nf_data11 = $this->ADM->getForecastData(1, 11, $year-1);
-					foreach ($nf_data11 as $nfdata11) {
-						$nfarray[] = $nfdata11->total ?? 0;
-					}
-					$nf_data12 = $this->ADM->getForecastData(1, 12, $year-1);
-					foreach ($nf_data12 as $nfdata12) {
-						$nfarray[] = $nfdata12->total ?? 0;
-					}
-		
-					if (count($nfarray) < 2) {
-						$data['forecast'] = [];
-					} else {
-						$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+				$year_before = $year-1;
+				$prev_data_array = [];
+
+				// get oct, nov, dec from prev year
+				for ($b = 10; $b <= 12; $b++) {
+					$prev_data = $this->ADM->getForecastData(1, $b, $year_before, $sel_good);
+					foreach ($prev_data as $pdata) {
+						$prev_data_array[] = $pdata->total ?? 0;
 					}
 				}
+
+				// use Ma as formula
+				$data['forecast'] = $this->useMa2($prev_data_array);
+
+				// save to db
+				$db_data = [
+					'year' => $year,
+					'status' => 1,
+					'item_id' => $sel_good,
+					'forecast_data' => json_encode($data['forecast'])
+				];
+				$this->ADM->saveForecastDataYear($db_data);
+
 			}
 
-			foreach($forecast_array as $key => $good_data) {
-				if ($key < (12 - $last_zero_count)) {
-					$data['good_data'][] = $good_data;
-				}
-				
-			}
+			$data['good_data'] = $forecast_array;
 
 			$data['sel_good'] = $sel_good;
 			$data['goods'] = $this->ADM->getGoods();
@@ -1146,42 +1143,39 @@ class Website extends CI_Controller {
 					$forecast_array[] = $fdata->total ?? 0;
 				}
 			}
-		
-			$last_zero_count = $this->getZeroCount($forecast_array);
 
-			if ($last_zero_count == 0) {
-				$data['forecast'] = $forecast_array;
+			// check if forecast data for the year exist
+			$forecast_exist =  $this->ADM->getForecastDataYear($year, 2, $sel_good);
+
+			if ($forecast_exist) {
+				$data['forecast'] = json_decode($forecast_exist->forecast_data);
 			} else {
-				if ($last_zero_count < 10) {
-					$data['forecast'] = $this->useMa($forecast_array, $last_zero_count);
-				} elseif ($last_zero_count == 10) {
-					$data['forecast'] = $this->useEs($forecast_array);
-				} else {
-					// look for data from nov and dec last year
-					$nfarray = [];
-					$nf_data11 = $this->ADM->getForecastData(1, 11, $year-1);
-					foreach ($nf_data11 as $nfdata11) {
-						$nfarray[] = $nfdata11->total ?? 0;
-					}
-					$nf_data12 = $this->ADM->getForecastData(1, 12, $year-1);
-					foreach ($nf_data12 as $nfdata12) {
-						$nfarray[] = $nfdata12->total ?? 0;
-					}
-		
-					if (count($nfarray) < 2) {
-						$data['forecast'] = [];
-					} else {
-						$data['forecast'] = $this->useEs2($forecast_array, $nfarray);
+				$year_before = $year-1;
+				$prev_data_array = [];
+
+				// get oct, nov, dec from prev year
+				for ($b = 10; $b <= 12; $b++) {
+					$prev_data = $this->ADM->getForecastData(2, $b, $year_before, $sel_good);
+					foreach ($prev_data as $pdata) {
+						$prev_data_array[] = $pdata->total ?? 0;
 					}
 				}
+
+				// use Ma as formula
+				$data['forecast'] = $this->useMa2($prev_data_array);
+
+				// save to db
+				$db_data = [
+					'year' => $year,
+					'status' => 2,
+					'item_id' => $sel_good,
+					'forecast_data' => json_encode($data['forecast'])
+				];
+				$this->ADM->saveForecastDataYear($db_data);
+
 			}
 
-			foreach($forecast_array as $key => $good_data) {
-				if ($key < (12 - $last_zero_count)) {
-					$data['good_data'][] = $good_data;
-				}
-				
-			}
+			$data['good_data'] = $forecast_array;
 
 			$data['sel_good'] = $sel_good;
 			$data['goods'] = $this->ADM->getGoods();
@@ -1223,6 +1217,16 @@ class Website extends CI_Controller {
 			$array[$n] = round($avg);
 		}
 		return $array;
+	}
+
+	private function useMa2($array) {
+		$ret_array = [];
+		for ($n = 3; $n <= 14; $n++) {
+			$avg = ($array[$n-1] + $array[$n-2] + $array[$n-3])/3;
+			$array[$n] = round($avg);
+			$ret_array[] = round($avg);
+		}
+		return $ret_array;
 	}
 
 	private function useEs2($array, $lastyear) {
